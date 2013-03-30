@@ -13,7 +13,7 @@ int delay = 16;
 
 // Setup the Processing Canvas
 void setup(){
-  size( 200, 200 );
+  size(1024, 768);
   strokeWeight( 10 );
   frameRate( 15 );
   X = width / 2;
@@ -42,6 +42,8 @@ void draw(){
   
   // Draw circle
   ellipse( X, Y, radius, radius );                  
+   
+  text("["+round(X)+","+round(Y)+"]",20,20);
 }
 
 
