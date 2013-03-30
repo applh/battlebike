@@ -9,11 +9,15 @@
 float radius = 50.0;
 int X, Y;
 int nX, nY;
-int delay = 16;
+int mpX=-100, mpY=-100;
+int delay = 10;
 
 // Setup the Processing Canvas
 void setup(){
-  size(screen.width, screen.height);
+
+  // portrait
+  size(screen.height, screen.width);
+
   strokeWeight( 10 );
   frameRate( 15 );
   X = width / 2;
@@ -36,12 +40,17 @@ void draw(){
   
   // Set fill-color to blue
   fill( 0, 121, 184 );
-  
   // Set stroke-color white
   stroke(255); 
-  
   // Draw circle
   ellipse( X, Y, radius, radius );                  
+
+  // Set fill-color to blue
+  fill( 200, 150, 150 );
+  // Set stroke-color white
+  stroke(255); 
+  // Draw circle
+  ellipse( mpX, mpY, radius, radius );                  
    
   text("v0.1 ["+round(X)+","+round(Y)+"]",20,20);
 }
@@ -51,6 +60,12 @@ void draw(){
 void mouseMoved(){
   nX = mouseX;
   nY = mouseY;  
+}
+
+// Set circle's next destination
+void mousePressed(){
+  mpX = mouseX;
+  mpY = mouseY;  
 }
 
 
