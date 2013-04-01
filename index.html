@@ -39,6 +39,13 @@
         var stroke;
         var colors;
         var index;
+ 
+ var BB={};
+ BB.oldPt=new Array();
+ BB.oldMidPt=new Array();
+ BB.color=new Array();
+ BB.stroke=new Array();
+
 
         function init() {
             if (window.top != window) {
@@ -60,6 +67,7 @@
 
             stage.addEventListener("stagemousedown", handleMouseDown);
             stage.addEventListener("stagemouseup", handleMouseUp);
+            stage.addEventListener("stagemousemove" , handleMouseMove);
 
             title = new createjs.Text("Click and Drag to draw", "36px Arial", "#777777");
             title.x = 300;
@@ -78,13 +86,32 @@
             if (stage.contains(title)) { stage.clear(); stage.removeChild(title); }
             color = colors[(index++)%colors.length];
             stroke = Math.random()*30 + 10 | 0;
-            oldPt = new createjs.Point(stage.mouseX, stage.mouseY);
+            var smx=event.stageX;
+            var smy=event.stageY;
+            //oldPt = new createjs.Point(stage.mouseX, stage.mouseY);
+            oldPt = new createjs.Point(smx, smy);
             oldMidPt = oldPt;
-            stage.addEventListener("stagemousemove" , handleMouseMove);
+
+            var pid=event.pointerID;
+            BB.oldPt[pid]=oldPt;
+            BB.oldMidPt[pid]=oldMidPt;
+            BB.color[pid]=color;
+            BB.stroke[pid]=stroke;
+
+            //stage.addEventListener("stagemousemove" , handleMouseMove);
         }
 
         function handleMouseMove(event) {
-            var midPt = new createjs.Point(oldPt.x + stage.mouseX>>1, oldPt.y+stage.mouseY>>1);
+            var pid=event.pointerID;
+            var smx=event.stageX;
+            var smy=event.stageY;
+            oldPt=BB.oldPt[pid];
+            oldMidPt=BB.oldMidPt[pid];
+            color=BB.color[pid];
+            stroke=BB.stroke[pid];
+
+            //var midPt = new createjs.Point(oldPt.x + stage.mouseX>>1, oldPt.y+stage.mouseY>>1);
+            var midPt = new createjs.Point(oldPt.x + smx>>1, oldPt.y+smy>>1);
 
             drawingCanvas.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
 
@@ -98,7 +125,7 @@
         }
 
         function handleMouseUp(event) {
-            stage.removeEventListener("stagemousemove" , handleMouseMove);
+            //stage.removeEventListener("stagemousemove" , handleMouseMove);
         }
 
     </script>
