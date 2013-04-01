@@ -52,6 +52,10 @@
                 document.getElementById("header").style.display = "none";
             }
             canvas = document.getElementById("myCanvas");
+
+            canvas.addEventListener("touchstart", function(e) { e.preventDefault(); }, false);
+            canvas.addEventListener("touchend", function(e) { e.preventDefault(); }, false);
+
             index = 0;
             colors = ["#828b20", "#b0ac31", "#cbc53d", "#fad779", "#f9e4ad", "#faf2db", "#563512", "#9b4a0b", "#d36600", "#fe8a00", "#f9a71f"];
 
@@ -83,6 +87,7 @@
         }
 
         function handleMouseDown(event) {
+
             if (stage.contains(title)) { stage.clear(); stage.removeChild(title); }
             color = colors[(index++)%colors.length];
             stroke = Math.random()*30 + 10 | 0;
@@ -102,6 +107,7 @@
         }
 
         function handleMouseMove(event) {
+
             var pid=event.pointerID;
             var smx=event.stageX;
             var smy=event.stageY;
@@ -131,12 +137,6 @@
     </script>
 </head>
 <body onload="init();">
-
-<header id="header" class="EaselJS">
-    <h1><span class="text-product">Easel<strong>JS</strong></span> CurveTo</h1>
-    <p>This example demonstrates painting to the canvas using the vector drawing API in EaselJS</p>
-</header>
-
-<canvas id="myCanvas" width="960" height="400"></canvas>
+<canvas id="myCanvas" width="2048" height="1536" style="width:100%;height:100%;"></canvas>
 </body>
 </html>
