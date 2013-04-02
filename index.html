@@ -74,7 +74,7 @@ BB.init2button=function(x, y, cf) {
 BB.init2player=function(x, y, cf, cs) {
    //Create a Shape DisplayObject.
    var s = new createjs.Shape();
-   s.graphics.beginStroke(cs).beginFill(cf).drawCircle(0, 0, 10).drawRoundRect(0, -1, 10, 3, 2);
+   s.graphics.beginStroke(cs).beginFill(cf).drawCircle(0, 0, 10).beginFill(cs).drawRoundRect(-5, -2, 16, 4, 2);
    //Set position of Shape instance.
    s.x = x;
    s.y = y;
@@ -152,9 +152,9 @@ BB.player3=null;
 BB.player4=null;
 
 BB.init2players=function() {
-    BB.player1=BB.init2player(BB.w2, BB.h4, "#ffaaaa", "#ff0000");
-    BB.player2=BB.init2player(BB.w4, BB.h2, "#aaffaa", "#00ff00");
-    BB.player3=BB.init2player(BB.w2, 3*BB.h4, "#aaaaff", "#0000ff");
+    BB.player1=BB.init2player(BB.w2, BB.h4, "#ffaaaa", "#ff5555");
+    BB.player2=BB.init2player(BB.w4, BB.h2, "#aaffaa", "#55ff55");
+    BB.player3=BB.init2player(BB.w2, 3*BB.h4, "#aaaaff", "#5555ff");
     BB.player4=BB.init2player(3*BB.w4, BB.h2, "#ffffff", "#555555");
 }
 
@@ -201,7 +201,6 @@ BB.player2update=function(player, pid) {
    if (player.y >BB.height) player.y=0;
 
    var power=BB.power[pid];
-   //player.graphics.drawCircle(0, 0, power);
    player.scaleX = player.scaleY = power/10;
    player.rotation = BB.ma[pid];
    player.alpha = .8;
@@ -261,13 +260,14 @@ BB.frame2update=function (event) {
 BB.frame2players=function () {
 
    for (var p=0; p<BB.mx.length; p++) {
-      var dr=10*Math.random()-4;
+      var dr=15*Math.random()-5;
       BB.mr[p]+=Math.round(dr);
 
       if (BB.mr[p] <0) BB.mr[p]=0;
       if (BB.mr[p] >30) BB.mr[p]=30;
 
-      var da=20*Math.random()-8;
+      var da=20*Math.random()-10;
+      if (da*da < 60) da=0; // reduce brownian noise
       BB.ma[p]= (BB.ma[p]+Math.round(da)) % 360;
       
       var dx=BB.mr[p] * Math.cos(BB.ma[p]*Math.PI/180);
