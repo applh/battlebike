@@ -43,30 +43,38 @@
  var BB={};
 
 
+BB.game2play=false;
+BB.game2winner=false;
+BB.game2winid=-1;
 
  BB.oldPt=new Array();
  BB.oldMidPt=new Array();
  BB.color=new Array();
  BB.stroke=new Array();
 
-BB.init2button=function(x, y) {
-    //Create a Shape DisplayObject.
-    var circle = new createjs.Shape();
-    circle.graphics.beginStroke("#eeeeee").beginFill("#aaaaaa").drawCircle(0, 0, 40).drawRoundRect(0, 0, 5, 40, 2);
-    //Set position of Shape instance.
-    circle.x = x;
-    circle.y = y;
+BB.button=new Array();
 
-    //Add Shape instance to stage display list.
-    stage.addChild(circle);
+BB.init2button=function(x, y, cf) {
+   //Create a Shape DisplayObject.
+   var circle = new createjs.Shape();
+   circle.graphics.beginStroke("#eeeeee").beginFill("#cccccc").drawCircle(0, 0, 40).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
+   //Set position of Shape instance.
+   circle.x = x;
+   circle.y = y;
 
-    return circle;
+   //Add Shape instance to stage display list.
+   stage.addChild(circle);
+
+   var next=BB.button.length;
+   BB.button[next]=circle;
+
+   return circle;
 }
 
-BB.init2player=function(x, y) {
+BB.init2player=function(x, y, cf, cs) {
    //Create a Shape DisplayObject.
    var s = new createjs.Shape();
-   s.graphics.beginStroke("#eeeeee").beginFill("#aaffaa").drawCircle(0, 0, 10).drawRoundRect(0, -1, 5, 3, 2);
+   s.graphics.beginStroke(cs).beginFill(cf).drawCircle(0, 0, 10).drawRoundRect(0, -1, 10, 3, 2);
    //Set position of Shape instance.
    s.x = x;
    s.y = y;
@@ -101,20 +109,6 @@ BB.init2npc=function(x, y, cf) {
    return s;
 }
 
-
-BB.init2hud=function() {
-    BB.init2button(BB.w3, 50);
-    BB.init2button(2*BB.w3, 50);
-
-    BB.init2button(50, BB.h3);
-    BB.init2button(50, 2*BB.h3);
-
-    BB.init2button(BB.w3, BB.height-50);
-    BB.init2button(2*BB.w3, BB.height-50);
-
-    BB.init2button(BB.width-50, BB.h3);
-    BB.init2button(BB.width-50, 2*BB.h3);
-}
 
 BB.npc=new Array();
 BB.npa=new Array();
@@ -158,11 +152,26 @@ BB.player3=null;
 BB.player4=null;
 
 BB.init2players=function() {
-    BB.player1=BB.init2player(BB.w4, BB.h2);
-    BB.player2=BB.init2player(3*BB.w4, BB.h2);
-    BB.player3=BB.init2player(BB.w2, BB.h4);
-    BB.player4=BB.init2player(BB.w2, 3*BB.h4);
+    BB.player1=BB.init2player(BB.w2, BB.h4, "#ffaaaa", "#ff0000");
+    BB.player2=BB.init2player(BB.w4, BB.h2, "#aaffaa", "#00ff00");
+    BB.player3=BB.init2player(BB.w2, 3*BB.h4, "#aaaaff", "#0000ff");
+    BB.player4=BB.init2player(3*BB.w4, BB.h2, "#ffffff", "#555555");
 }
+
+BB.init2hud=function() {
+    BB.init2button(BB.w3, 50, "#ffaaaa");
+    BB.init2button(2*BB.w3, 50, "#ffaaaa");
+
+    BB.init2button(50, 2*BB.h3, "#aaffaa");
+    BB.init2button(50, BB.h3, "#aaffaa");
+
+    BB.init2button(2*BB.w3, BB.height-50, "#aaaaff");
+    BB.init2button(BB.w3, BB.height-50, "#aaaaff");
+
+    BB.init2button(BB.width-50, BB.h3, "#ffffff");
+    BB.init2button(BB.width-50, 2*BB.h3, "#ffffff");
+}
+
 
 BB.dx1=1;
 BB.dy1=0;
@@ -178,6 +187,8 @@ BB.my=new Array(0,0,1,-1);
 BB.mr=new Array(16,16,16,16); // radius
 BB.ma=new Array(0,180,270,90); // angle
 BB.power=new Array(10,10,10,10); // angle
+
+BB.game2level=100;
 
 BB.player2update=function(player, pid) {
 
@@ -195,14 +206,54 @@ BB.player2update=function(player, pid) {
    player.rotation = BB.ma[pid];
    player.alpha = .8;
 
-   if (power < 200) BB.power[pid]=power+.5;
+   if (power < BB.game2level) { 
+      BB.power[pid]=power+.5;
+   }
+   else {
+      BB.game2play=false;
+      BB.winner=true;
+      BB.winid=pid;
+   }
+
 };
 
+BB.color=new Array("#ffaaaa", "#aaffaa", "#aaaaff", "#ffffff");
+
+BB.text2winner=null
 BB.frame2update=function (event) {
    stage.clear();
 
-   BB.frame2players();
-   BB.frame2npcs();
+   if (BB.game2play) {
+
+      if (BB.text2winner != null) {
+         if (BB.text2winner.alpha > 0) {
+            BB.text2winner.alpha-=.1;
+         }
+         else {
+            stage.removeChild(BB.text2winner);
+            BB.text2winner=null;
+         }
+      }
+
+      BB.frame2players();
+      BB.frame2npcs();
+   }
+   else if (BB.winner) {
+
+      var win2id=BB.winid;
+      var win2name=1+BB.winid;
+      var txt="PLAYER "+win2name+" WINS LEVEL "+ BB.game2level;
+
+      BB.game2level+=10;
+
+      BB.game2reset();
+
+      BB.text2winner = new createjs.Text(txt, "60px Arial", BB.color[win2id]);
+      BB.text2winner.x = BB.w3;
+      BB.text2winner.y = BB.h3;
+      stage.addChild(BB.text2winner);
+
+   }
 
    stage.update();
 };
@@ -210,11 +261,11 @@ BB.frame2update=function (event) {
 BB.frame2players=function () {
 
    for (var p=0; p<BB.mx.length; p++) {
-      var dr=8*Math.random()-4;
+      var dr=10*Math.random()-4;
       BB.mr[p]+=Math.round(dr);
 
       if (BB.mr[p] <0) BB.mr[p]=0;
-      if (BB.mr[p] >20) BB.mr[p]=20;
+      if (BB.mr[p] >30) BB.mr[p]=30;
 
       var da=20*Math.random()-8;
       BB.ma[p]= (BB.ma[p]+Math.round(da)) % 360;
@@ -276,6 +327,47 @@ BB.game2npcs=function () {
       
 };
 
+BB.game2press=function (smx, smy) {
+   var found=false;
+   for (var p1=0; p1<BB.button.length; p1++) {
+      var player1=BB.button[p1];
+      var d2=(player1.x-smx)*(player1.x-smx) + (player1.y-smy)*(player1.y-smy);
+      var level=10000;
+      if (d2 < level) {
+         found=true;
+         player1.rotation=(player1.rotation+90)%360;
+         if (p1 == 0) {
+            BB.ma[0]=(BB.ma[0]+90)%360;
+         }
+         else if (p1 == 1) {
+            BB.ma[0]=(BB.ma[0]+270)%360;
+         }
+         else if (p1 == 2) {
+            BB.ma[1]=(BB.ma[1]+90)%360;
+         }
+         else if (p1 == 3) {
+            BB.ma[1]=(BB.ma[1]+270)%360;
+         }
+         else if (p1 == 4) {
+            BB.ma[2]=(BB.ma[2]+90)%360;
+         }
+         else if (p1 == 5) {
+            BB.ma[2]=(BB.ma[2]+270)%360;
+         }
+         else if (p1 == 6) {
+            BB.ma[3]=(BB.ma[3]+90)%360;
+         }
+         else if (p1 == 7) {
+            BB.ma[3]=(BB.ma[3]+270)%360;
+         }
+      }
+   }
+      
+   if (!found) {
+      BB.game2play=!BB.game2play;
+   }
+};
+
 
 BB.frame2npcs=function (event) {
 
@@ -300,6 +392,18 @@ BB.frame2npcs=function (event) {
 
 };
 
+
+BB.game2reset=function () {
+   BB.power=new Array(10,10,10,10); // angle
+
+   BB.winner=false;
+   BB.winid=-1;
+
+   if (BB.text2winner != null) {
+      stage.removeChild(BB.text2winner);
+      BB.text2winner=null;
+   }
+};
 
 
 function init() {
@@ -343,7 +447,7 @@ function init() {
             title.x = BB.w3;
             title.y = BB.h3;
             stage.addChild(title);
-
+ 
             stage.addChild(drawingCanvas);
             //Update stage will render next frame
             stage.update();
@@ -363,12 +467,13 @@ function init() {
 
         function handleMouseDown(event) {
 
-            if (stage.contains(title)) { stage.clear(); stage.removeChild(title); }
-
-            color = colors[(index++)%colors.length];
-            stroke = Math.random()*30 + 10 | 0;
             var smx=event.stageX;
             var smy=event.stageY;
+
+            BB.game2press(smx, smy);
+            
+            color = colors[(index++)%colors.length];
+            stroke = Math.random()*30 + 10 | 0;
             //oldPt = new createjs.Point(stage.mouseX, stage.mouseY);
             oldPt = new createjs.Point(smx, smy);
             oldMidPt = oldPt;
@@ -384,25 +489,28 @@ function init() {
 
         function handleMouseMove(event) {
 
+            if (stage.contains(title)) { stage.removeChild(title); }
+
             var pid=event.pointerID;
             var smx=event.stageX;
             var smy=event.stageY;
-            oldPt=BB.oldPt[pid];
-            oldMidPt=BB.oldMidPt[pid];
-            color=BB.color[pid];
-            stroke=BB.stroke[pid];
+            if (BB.oldPt.length > 0) {
+               oldPt=BB.oldPt[pid];
+               oldMidPt=BB.oldMidPt[pid];
+               color=BB.color[pid];
+               stroke=BB.stroke[pid];
 
-            //var midPt = new createjs.Point(oldPt.x + stage.mouseX>>1, oldPt.y+stage.mouseY>>1);
-            var midPt = new createjs.Point(oldPt.x + smx>>1, oldPt.y+smy>>1);
+               //var midPt = new createjs.Point(oldPt.x + stage.mouseX>>1, oldPt.y+stage.mouseY>>1);
+               var midPt = new createjs.Point(oldPt.x + smx>>1, oldPt.y+smy>>1);
 
-            drawingCanvas.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
+               drawingCanvas.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
 
-            oldPt.x = stage.mouseX;
-            oldPt.y = stage.mouseY;
+               oldPt.x = stage.mouseX;
+               oldPt.y = stage.mouseY;
 
-            oldMidPt.x = midPt.x;
-            oldMidPt.y = midPt.y;
-
+               oldMidPt.x = midPt.x;
+               oldMidPt.y = midPt.y;
+            }
             //stage.update();
         }
 
