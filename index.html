@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Curve To</title>
+    <title>Battle Bike</title>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="format-detection" content="telephone=no" />
@@ -41,13 +41,118 @@
         var index;
  
  var BB={};
+
+
+
  BB.oldPt=new Array();
  BB.oldMidPt=new Array();
  BB.color=new Array();
  BB.stroke=new Array();
 
+BB.init2button=function(x, y) {
+    //Create a Shape DisplayObject.
+    var circle = new createjs.Shape();
+    circle.graphics.beginStroke("#eeeeee").beginFill("#aaffaa").drawCircle(0, 0, 40);
+    //Set position of Shape instance.
+    circle.x = x;
+    circle.y = y;
 
-        function init() {
+    //Add Shape instance to stage display list.
+    stage.addChild(circle);
+
+    return circle;
+}
+
+BB.init2player=function(x, y) {
+    //Create a Shape DisplayObject.
+    var s = new createjs.Shape();
+    s.graphics.beginStroke("#eeeeee").beginFill("#ffaaaa").drawCircle(0, 0, 10);
+    //Set position of Shape instance.
+    s.x = x;
+    s.y = y;
+
+    //Add Shape instance to stage display list.
+    stage.addChild(s);
+
+    return s;
+}
+
+BB.init2hud=function() {
+    BB.init2button(BB.w3, 50);
+    BB.init2button(2*BB.w3, 50);
+
+    BB.init2button(50, BB.h3);
+    BB.init2button(50, 2*BB.h3);
+
+    BB.init2button(BB.w3, BB.height-50);
+    BB.init2button(2*BB.w3, BB.height-50);
+
+    BB.init2button(BB.width-50, BB.h3);
+    BB.init2button(BB.width-50, 2*BB.h3);
+}
+
+BB.player1=null;
+BB.player2=null;
+BB.player3=null;
+BB.player4=null;
+
+BB.init2players=function() {
+    BB.player1=BB.init2player(BB.w4, BB.h2);
+    BB.player2=BB.init2player(3*BB.w4, BB.h2);
+    BB.player3=BB.init2player(BB.w2, BB.h4);
+    BB.player4=BB.init2player(BB.w2, 3*BB.h4);
+}
+
+BB.dx1=1;
+BB.dy1=0;
+BB.dx2=-1;
+BB.dy2=0;
+BB.dx3=0;
+BB.dy3=1;
+BB.dx4=0;
+BB.dy4=-1;
+
+BB.mx=new Array(1,-1,0,0);
+BB.my=new Array(0,0,1,-1);
+BB.mr=new Array(16,16,16,16); // radius
+BB.ma=new Array(0,180,270,90); // angle
+BB.player2update=function(player, pid) {
+
+   player.x += BB.mx[pid];
+   player.y += BB.my[pid];
+
+   if (player.x <0) player.x=BB.width;
+   if (player.y <0) player.y=BB.height;
+   if (player.x >BB.width) player.x=0;
+   if (player.y >BB.height) player.y=0;
+};
+
+BB.frame2update=function (event) {
+   for (var p=0; p<BB.mx.length; p++) {
+      var dr=4*Math.random()-2;
+      BB.mr[p]+=Math.round(dr);
+
+      if (BB.mr[p] <0) BB.mr[p]=0;
+      if (BB.mr[p] >20) BB.mr[p]=20;
+
+      var da=16*Math.random()-8;
+      BB.ma[p]= (BB.ma[p]+Math.round(da)) % 360;
+      
+      var dx=BB.mr[p] * Math.cos(BB.ma[p]*Math.PI/180);
+      var dy=BB.mr[p] * Math.sin(BB.ma[p]*Math.PI/180);
+
+      BB.mx[p]=Math.round(dx);
+      BB.my[p]=Math.round(dy);
+   }
+   // Actions carried out each frame
+   BB.player2update(BB.player1, 0);
+   BB.player2update(BB.player2, 1);
+   BB.player2update(BB.player3, 2);
+   BB.player2update(BB.player4, 3);
+};
+
+
+function init() {
             if (window.top != window) {
                 document.getElementById("header").style.display = "none";
             }
@@ -61,11 +166,22 @@
 
             //check to see if we are running in a browser with touch support
             stage = new createjs.Stage(canvas);
-            stage.autoClear = false;
+            //stage.autoClear = false;
+            stage.autoClear = true;
             stage.enableDOMEvents(true);
 
             createjs.Touch.enable(stage);
             createjs.Ticker.setFPS(24);
+
+            BB.width=stage.canvas.width; // canvas size
+            BB.height=stage.canvas.height;
+
+            BB.w2=Math.round(BB.width/2);
+            BB.h2=Math.round(BB.height/2);
+            BB.w3=Math.round(BB.width/3);
+            BB.h3=Math.round(BB.height/3);
+            BB.w4=Math.round(BB.width/4);
+            BB.h4=Math.round(BB.height/4);
 
             drawingCanvas = new createjs.Shape();
 
@@ -79,16 +195,25 @@
             stage.addChild(title);
 
             stage.addChild(drawingCanvas);
+            //Update stage will render next frame
             stage.update();
+
+            BB.init2hud();
+            BB.init2players();
+
+            createjs.Ticker.addEventListener("tick", BB.frame2update);
+            createjs.Ticker.addEventListener("tick", stage);
         }
 
+  
         function stop() {
-            createjs.Ticker.removeEventListener("tick", tick);
+            //createjs.Ticker.removeEventListener("tick", tick);
         }
 
         function handleMouseDown(event) {
 
             if (stage.contains(title)) { stage.clear(); stage.removeChild(title); }
+
             color = colors[(index++)%colors.length];
             stroke = Math.random()*30 + 10 | 0;
             var smx=event.stageX;
@@ -127,7 +252,7 @@
             oldMidPt.x = midPt.x;
             oldMidPt.y = midPt.y;
 
-            stage.update();
+            //stage.update();
         }
 
         function handleMouseUp(event) {
