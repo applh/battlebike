@@ -52,7 +52,7 @@
 BB.init2button=function(x, y) {
     //Create a Shape DisplayObject.
     var circle = new createjs.Shape();
-    circle.graphics.beginStroke("#eeeeee").beginFill("#aaffaa").drawCircle(0, 0, 40);
+    circle.graphics.beginStroke("#eeeeee").beginFill("#aaaaaa").drawCircle(0, 0, 40).drawRoundRect(0, 0, 5, 40, 2);
     //Set position of Shape instance.
     circle.x = x;
     circle.y = y;
@@ -66,7 +66,7 @@ BB.init2button=function(x, y) {
 BB.init2player=function(x, y) {
     //Create a Shape DisplayObject.
     var s = new createjs.Shape();
-    s.graphics.beginStroke("#eeeeee").beginFill("#ffaaaa").drawCircle(0, 0, 10);
+    s.graphics.beginStroke("#eeeeee").beginFill("#aaffaa").drawCircle(0, 0, 10).drawRoundRect(0, -1, 5, 3, 2);
     //Set position of Shape instance.
     s.x = x;
     s.y = y;
@@ -76,6 +76,28 @@ BB.init2player=function(x, y) {
 
     return s;
 }
+
+BB.init2npc=function(x, y, cf) {
+   //Create a Shape DisplayObject.
+   var s = new createjs.Shape();
+   s.graphics.beginStroke("#eeeeee").beginFill(cf).drawCircle(0, 0, 10);
+   //Set position of Shape instance.
+   s.x = x;
+   s.y = y;
+
+    //Add Shape instance to stage display list.
+   stage.addChild(s);
+
+   var next=BB.npc.length;
+   BB.npc[next]=s;
+   BB.npa[next]=Math.round(360*Math.random());
+   BB.npr[next]=Math.round(20*Math.random());
+   BB.npdx[next]=0;
+   BB.npdy[next]=0;
+
+   return s;
+}
+
 
 BB.init2hud=function() {
     BB.init2button(BB.w3, 50);
@@ -90,6 +112,35 @@ BB.init2hud=function() {
     BB.init2button(BB.width-50, BB.h3);
     BB.init2button(BB.width-50, 2*BB.h3);
 }
+
+BB.npc=new Array();
+BB.npa=new Array();
+BB.npr=new Array();
+BB.npdx=new Array();
+BB.npdy=new Array();
+
+BB.init2npcs=function() {
+    BB.init2npc(BB.w3, BB.h3, "#ff0000");
+    BB.init2npc(2*BB.w3, BB.h3, "#ff0000");
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff0000");
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff0000");
+    BB.init2npc(BB.w2, BB.h2, "#ff0000");
+}
+
+BB.npc2update=function(pid) {
+
+   var npc=BB.npc[pid];
+
+   npc.x += BB.npdx[pid];
+   npc.y += BB.npdy[pid];
+
+   if (npc.x <0) npc.x=BB.width;
+   else if (npc.x >BB.width) npc.x=0;
+
+   if (npc.y <0) npc.y=BB.height;
+   else if (npc.y >BB.height) npc.y=0;
+};
+
 
 BB.player1=null;
 BB.player2=null;
@@ -116,6 +167,8 @@ BB.mx=new Array(1,-1,0,0);
 BB.my=new Array(0,0,1,-1);
 BB.mr=new Array(16,16,16,16); // radius
 BB.ma=new Array(0,180,270,90); // angle
+BB.power=new Array(10,10,10,10); // angle
+
 BB.player2update=function(player, pid) {
 
    player.x += BB.mx[pid];
@@ -125,9 +178,26 @@ BB.player2update=function(player, pid) {
    if (player.y <0) player.y=BB.height;
    if (player.x >BB.width) player.x=0;
    if (player.y >BB.height) player.y=0;
+
+   var power=BB.power[pid];
+   //player.graphics.drawCircle(0, 0, power);
+   player.scaleX = player.scaleY = power/10;
+   player.rotation = BB.ma[pid];
+
+   if (power < 100) BB.power[pid]=power+1;
 };
 
 BB.frame2update=function (event) {
+   stage.clear();
+
+   BB.frame2players();
+   BB.frame2npcs();
+
+   stage.update();
+};
+
+BB.frame2players=function (event) {
+
    for (var p=0; p<BB.mx.length; p++) {
       var dr=4*Math.random()-2;
       BB.mr[p]+=Math.round(dr);
@@ -149,7 +219,32 @@ BB.frame2update=function (event) {
    BB.player2update(BB.player2, 1);
    BB.player2update(BB.player3, 2);
    BB.player2update(BB.player4, 3);
+
 };
+
+BB.frame2npcs=function (event) {
+
+   for (var p=0; p<BB.npc.length; p++) {
+      var dr=4*Math.random()-2;
+      BB.npr[p]+=Math.round(dr);
+
+      if (BB.npr[p] <0) BB.npr[p]=0;
+      if (BB.npr[p] >20) BB.npr[p]=20;
+
+      var da=16*Math.random()-8;
+      BB.npa[p]= (BB.npa[p]+Math.round(da)) % 360;
+      
+      var dx=BB.npr[p] * Math.cos(BB.npa[p]*Math.PI/180);
+      var dy=BB.npr[p] * Math.sin(BB.npa[p]*Math.PI/180);
+
+      BB.npdx[p]=Math.round(dx);
+      BB.npdy[p]=Math.round(dy);
+
+      BB.npc2update(p);
+   }
+
+};
+
 
 
 function init() {
@@ -166,8 +261,8 @@ function init() {
 
             //check to see if we are running in a browser with touch support
             stage = new createjs.Stage(canvas);
-            //stage.autoClear = false;
-            stage.autoClear = true;
+            stage.autoClear = false;
+            //stage.autoClear = true;
             stage.enableDOMEvents(true);
 
             createjs.Touch.enable(stage);
@@ -189,9 +284,9 @@ function init() {
             stage.addEventListener("stagemouseup", handleMouseUp);
             stage.addEventListener("stagemousemove" , handleMouseMove);
 
-            title = new createjs.Text("Click and Drag to draw", "36px Arial", "#777777");
-            title.x = 300;
-            title.y = 200;
+            title = new createjs.Text("BATTLE BIKE by Applh.com", "36px Arial", "#777777");
+            title.x = BB.w3;
+            title.y = BB.h3;
             stage.addChild(title);
 
             stage.addChild(drawingCanvas);
@@ -199,10 +294,11 @@ function init() {
             stage.update();
 
             BB.init2hud();
+            BB.init2npcs();
             BB.init2players();
 
             createjs.Ticker.addEventListener("tick", BB.frame2update);
-            createjs.Ticker.addEventListener("tick", stage);
+            //createjs.Ticker.addEventListener("tick", stage);
         }
 
   
