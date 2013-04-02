@@ -34,7 +34,6 @@
         var drawingCanvas;
         var oldPt;
         var oldMidPt;
-        var title;
         var color;
         var stroke;
         var colors;
@@ -257,6 +256,23 @@ BB.frame2update=function (event) {
    stage.update();
 };
 
+BB.showMessage=function (msg, color) {
+   if (BB.text2winner != null) {
+      stage.removeChild(BB.text2winner);
+      BB.text2winner=null;
+   }
+   BB.text2winner = new createjs.Text(msg, "60px Arial", color);
+   if (msg.length < 20) {
+      BB.text2winner.x = BB.w3;
+   }
+   else {
+      BB.text2winner.x = BB.w4;
+   }
+   BB.text2winner.y = BB.h3;
+   stage.addChild(BB.text2winner);
+
+};
+
 BB.frame2players=function () {
 
    for (var p=0; p<BB.mx.length; p++) {
@@ -443,11 +459,6 @@ function init() {
             stage.addEventListener("stagemouseup", handleMouseUp);
             stage.addEventListener("stagemousemove" , handleMouseMove);
 
-            title = new createjs.Text("BATTLE BIKE by Applh.com", "50px Arial", "#777777");
-            title.x = BB.w3;
-            title.y = BB.h3;
-            stage.addChild(title);
- 
             stage.addChild(drawingCanvas);
             //Update stage will render next frame
             stage.update();
@@ -455,6 +466,8 @@ function init() {
             BB.init2hud();
             BB.init2npcs();
             BB.init2players();
+
+            BB.showMessage("BATTLE BIKE  [+]  Touch to START", "#ffffff");
 
             createjs.Ticker.addEventListener("tick", BB.frame2update);
             //createjs.Ticker.addEventListener("tick", stage);
@@ -488,8 +501,6 @@ function init() {
         }
 
         function handleMouseMove(event) {
-
-            if (stage.contains(title)) { stage.removeChild(title); }
 
             var pid=event.pointerID;
             var smx=event.stageX;
