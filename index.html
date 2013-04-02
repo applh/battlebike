@@ -64,17 +64,20 @@ BB.init2button=function(x, y) {
 }
 
 BB.init2player=function(x, y) {
-    //Create a Shape DisplayObject.
-    var s = new createjs.Shape();
-    s.graphics.beginStroke("#eeeeee").beginFill("#aaffaa").drawCircle(0, 0, 10).drawRoundRect(0, -1, 5, 3, 2);
-    //Set position of Shape instance.
-    s.x = x;
-    s.y = y;
+   //Create a Shape DisplayObject.
+   var s = new createjs.Shape();
+   s.graphics.beginStroke("#eeeeee").beginFill("#aaffaa").drawCircle(0, 0, 10).drawRoundRect(0, -1, 5, 3, 2);
+   //Set position of Shape instance.
+   s.x = x;
+   s.y = y;
 
-    //Add Shape instance to stage display list.
-    stage.addChild(s);
+   //Add Shape instance to stage display list.
+   stage.addChild(s);
 
-    return s;
+   var next=BB.player.length;
+   BB.player[next]=s;
+
+   return s;
 }
 
 BB.init2npc=function(x, y, cf) {
@@ -125,6 +128,12 @@ BB.init2npcs=function() {
     BB.init2npc(BB.w3, 2*BB.h3, "#ff0000");
     BB.init2npc(2*BB.w3, 2*BB.h3, "#ff0000");
     BB.init2npc(BB.w2, BB.h2, "#ff0000");
+
+    BB.init2npc(BB.w3, BB.h3, "#ff0000");
+    BB.init2npc(2*BB.w3, BB.h3, "#ff0000");
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff0000");
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff0000");
+    BB.init2npc(BB.w2, BB.h2, "#ff0000");
 }
 
 BB.npc2update=function(pid) {
@@ -142,6 +151,7 @@ BB.npc2update=function(pid) {
 };
 
 
+BB.player=new Array();
 BB.player1=null;
 BB.player2=null;
 BB.player3=null;
@@ -183,8 +193,9 @@ BB.player2update=function(player, pid) {
    //player.graphics.drawCircle(0, 0, power);
    player.scaleX = player.scaleY = power/10;
    player.rotation = BB.ma[pid];
+   player.alpha = .8;
 
-   if (power < 100) BB.power[pid]=power+1;
+   if (power < 200) BB.power[pid]=power+.5;
 };
 
 BB.frame2update=function (event) {
@@ -196,16 +207,16 @@ BB.frame2update=function (event) {
    stage.update();
 };
 
-BB.frame2players=function (event) {
+BB.frame2players=function () {
 
    for (var p=0; p<BB.mx.length; p++) {
-      var dr=4*Math.random()-2;
+      var dr=8*Math.random()-4;
       BB.mr[p]+=Math.round(dr);
 
       if (BB.mr[p] <0) BB.mr[p]=0;
       if (BB.mr[p] >20) BB.mr[p]=20;
 
-      var da=16*Math.random()-8;
+      var da=20*Math.random()-8;
       BB.ma[p]= (BB.ma[p]+Math.round(da)) % 360;
       
       var dx=BB.mr[p] * Math.cos(BB.ma[p]*Math.PI/180);
@@ -214,6 +225,10 @@ BB.frame2players=function (event) {
       BB.mx[p]=Math.round(dx);
       BB.my[p]=Math.round(dy);
    }
+
+   BB.game2players();
+   BB.game2npcs();
+
    // Actions carried out each frame
    BB.player2update(BB.player1, 0);
    BB.player2update(BB.player2, 1);
@@ -221,6 +236,46 @@ BB.frame2players=function (event) {
    BB.player2update(BB.player4, 3);
 
 };
+
+BB.game2players=function () {
+   for (var p1=0; p1<BB.player.length; p1++) {
+      var player1=BB.player[p1];
+      for (var p2=p1+1; p2<BB.player.length; p2++) {
+         var player2=BB.player[p2];
+         var d2=(player1.x-player2.x)*(player1.x-player2.x) + (player1.y-player2.y)*(player1.y-player2.y);
+
+         var level=(BB.power[p1]+BB.power[p2])*(BB.power[p2]+BB.power[p2]);
+         if (d2 < level) {
+            BB.mx[p1]=-BB.mx[p1];
+            BB.my[p1]=-BB.my[p1];
+            BB.ma[p1]= (BB.ma[p1]+180) % 360;
+            BB.power[p1]=Math.round(BB.power[p1]*.8);
+            BB.mx[p2]=-BB.mx[p2];
+            BB.my[p2]=-BB.my[p2];
+            BB.ma[p2]= (BB.ma[p2]+180) % 360;
+            BB.power[p2]=Math.round(BB.power[p2]*.8);
+         }
+      }
+   }
+      
+};
+
+BB.game2npcs=function () {
+   for (var p1=0; p1<BB.npc.length; p1++) {
+      var player1=BB.npc[p1];
+      for (var p2=0; p2<BB.player.length; p2++) {
+         var player2=BB.player[p2];
+         var d2=(player1.x-player2.x)*(player1.x-player2.x) + (player1.y-player2.y)*(player1.y-player2.y);
+
+         var level=(10+BB.power[p2])*(10+BB.power[p2]);
+         if (d2 < level) {
+            BB.power[p2]=10;
+         }
+      }
+   }
+      
+};
+
 
 BB.frame2npcs=function (event) {
 
@@ -266,7 +321,7 @@ function init() {
             stage.enableDOMEvents(true);
 
             createjs.Touch.enable(stage);
-            createjs.Ticker.setFPS(24);
+            //createjs.Ticker.setFPS(24);
 
             BB.width=stage.canvas.width; // canvas size
             BB.height=stage.canvas.height;
@@ -284,7 +339,7 @@ function init() {
             stage.addEventListener("stagemouseup", handleMouseUp);
             stage.addEventListener("stagemousemove" , handleMouseMove);
 
-            title = new createjs.Text("BATTLE BIKE by Applh.com", "36px Arial", "#777777");
+            title = new createjs.Text("BATTLE BIKE by Applh.com", "50px Arial", "#777777");
             title.x = BB.w3;
             title.y = BB.h3;
             stage.addChild(title);
