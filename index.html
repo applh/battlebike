@@ -7,7 +7,17 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
-    <link href="assets/demoStyles.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+html, 
+body {
+   width:100%;
+   height:100%;
+   padding:0;
+   margin:0;
+   overflow:hidden;
+   background-color:#000000;
+}
+    </style>
 
     <script src="cordova.js"></script>
 
@@ -90,7 +100,7 @@ BB.init2player=function(x, y, cf, cs) {
 BB.init2npc=function(x, y, cf) {
    //Create a Shape DisplayObject.
    var s = new createjs.Shape();
-   s.graphics.beginStroke("#eeeeee").beginFill(cf).drawCircle(0, 0, 10);
+   s.graphics.beginStroke("#ff0000").beginFill(cf).drawCircle(0, 0, 10);
    //Set position of Shape instance.
    s.x = x;
    s.y = y;
@@ -108,6 +118,14 @@ BB.init2npc=function(x, y, cf) {
    return s;
 }
 
+BB.npc2remove=function() {
+   var tl=BB.npc.length;
+   if (tl >0) {
+      var last=BB.npc[tl-1];
+      BB.npc.pop();
+      stage.removeChild(last);
+   }
+}
 
 BB.npc=new Array();
 BB.npa=new Array();
@@ -116,17 +134,17 @@ BB.npdx=new Array();
 BB.npdy=new Array();
 
 BB.init2npcs=function() {
-    BB.init2npc(BB.w3, BB.h3, "#ff0000");
-    BB.init2npc(2*BB.w3, BB.h3, "#ff0000");
-    BB.init2npc(BB.w3, 2*BB.h3, "#ff0000");
-    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff0000");
-    BB.init2npc(BB.w2, BB.h2, "#ff0000");
+    BB.init2npc(BB.w3, BB.h3, "#ff5500");
+    BB.init2npc(2*BB.w3, BB.h3, "#ff5500");
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500");
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500");
+    BB.init2npc(BB.w2, BB.h2, "#ff5500");
 
-    BB.init2npc(BB.w3, BB.h3, "#ff0000");
-    BB.init2npc(2*BB.w3, BB.h3, "#ff0000");
-    BB.init2npc(BB.w3, 2*BB.h3, "#ff0000");
-    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff0000");
-    BB.init2npc(BB.w2, BB.h2, "#ff0000");
+    BB.init2npc(BB.w3, BB.h3, "#ff5500");
+    BB.init2npc(2*BB.w3, BB.h3, "#ff5500");
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500");
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500");
+    BB.init2npc(BB.w2, BB.h2, "#ff5500");
 }
 
 BB.npc2update=function(pid) {
@@ -225,10 +243,18 @@ BB.frame2update=function (event) {
    BB.frame2total++;
    BB.time2delta();
 
+   // autoregulate FPS
    var fps=Math.round(createjs.Ticker.getMeasuredFPS());
-   if (fps > 30) createjs.Ticker.setFPS(30);
-   if (BB.text2info != null) BB.text2info.text=fps+"/"+Math.round(createjs.Ticker.getTime(true));
+   if (fps > 0) {
+      if (fps > BB.fps2target) createjs.Ticker.setFPS(30);
+      if (fps < BB.fps2target) createjs.Ticker.setFPS(Math.round(.5*(BB.fps2target+fps)));
+   }
+
+   if (BB.text2info != null) BB.text2info.text=fps+"/"+BB.npc.length+"/"+Math.round(createjs.Ticker.getTime(true));
    if (BB.game2play) {
+
+      if (fps > BB.fps2min) BB.init2npc(BB.w2, BB.h2, "#ff5500");
+      if (fps < BB.fps2min) BB.npc2remove();
 
       if (BB.text2winner != null) {
          if (BB.text2winner.alpha > 0) {
@@ -484,8 +510,12 @@ BB.time2delta=function () {
    return BB.delta;
 };
 
+BB.fps2target=50;
+BB.fps2min=Math.round(BB.fps2target/2);
 function init() {
             canvas = document.getElementById("myCanvas");
+            canvas.width=window.innerWidth;
+            canvas.height=window.innerHeight;
 
             canvas.addEventListener("touchstart", function(e) { e.preventDefault(); }, false);
             canvas.addEventListener("touchend", function(e) { e.preventDefault(); }, false);
@@ -499,7 +529,7 @@ function init() {
             stage.enableDOMEvents(true);
 
             createjs.Touch.enable(stage);
-            createjs.Ticker.setFPS(30);
+            createjs.Ticker.setFPS(BB.fps2target);
 
             BB.width=stage.canvas.width; // canvas size
             BB.height=stage.canvas.height;
@@ -590,6 +620,7 @@ function init() {
     </script>
 </head>
 <body onload="init();">
+<!--<canvas id="myCanvas" width="2048" height="1536" style="width:100%;height:100%;"></canvas>-->
 <canvas id="myCanvas" width="2048" height="1536" style="width:100%;height:100%;"></canvas>
 </body>
 </html>
