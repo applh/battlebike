@@ -220,14 +220,14 @@ BB.color=new Array("#ffaaaa", "#aaffaa", "#aaaaff", "#ffffff");
 BB.text2winner=null
 
 BB.frame2update=function (event) {
-   //stage.clear();
+   stage.clear();
 
    BB.frame2total++;
    BB.time2delta();
 
    var fps=Math.round(createjs.Ticker.getMeasuredFPS());
-   if (fps > 25) createjs.Ticker.setFPS(25);
-
+   if (fps > 30) createjs.Ticker.setFPS(30);
+   if (BB.text2info != null) BB.text2info.text=fps+"/"+Math.round(createjs.Ticker.getTime(true));
    if (BB.game2play) {
 
       if (BB.text2winner != null) {
@@ -254,13 +254,13 @@ BB.frame2update=function (event) {
       BB.game2reset();
 
       BB.showMessage(txt, BB.color[win2id]);
-
    }
 
    stage.update();
 };
 
 BB.text2info=null;
+
 BB.showMessage=function (msg, color) {
    if (BB.text2winner != null) {
       stage.removeChild(BB.text2winner);
@@ -281,15 +281,18 @@ BB.showMessage=function (msg, color) {
       stage.removeChild(BB.text2info);
       BB.text2info=null;
    }
+
    var fps=Math.round(createjs.Ticker.getMeasuredFPS());
+   var info="fps:"+fps;
    if (fps > 0) {
-      var info="fps:"+fps;
-      BB.text2info = new createjs.Text(info, "10px Monospace", color);
-      BB.text2info.x = 5;
-      BB.text2info.y = 5;
-      stage.addChild(BB.text2info);
+      info="fps:"+fps;
    }
 
+   BB.text2info = new createjs.Text(info, "10px Monospace", color);
+   BB.text2info.x = 5;
+   BB.text2info.y = 5;
+
+   stage.addChild(BB.text2info);
    stage.addChild(BB.text2winner);
 
 };
@@ -482,9 +485,6 @@ BB.time2delta=function () {
 };
 
 function init() {
-            if (window.top != window) {
-                document.getElementById("header").style.display = "none";
-            }
             canvas = document.getElementById("myCanvas");
 
             canvas.addEventListener("touchstart", function(e) { e.preventDefault(); }, false);
@@ -495,12 +495,11 @@ function init() {
 
             //check to see if we are running in a browser with touch support
             stage = new createjs.Stage(canvas);
-            //stage.autoClear = false;
-            stage.autoClear = true;
+            stage.autoClear = false;
             stage.enableDOMEvents(true);
 
             createjs.Touch.enable(stage);
-            createjs.Ticker.setFPS(40);
+            createjs.Ticker.setFPS(30);
 
             BB.width=stage.canvas.width; // canvas size
             BB.height=stage.canvas.height;
@@ -529,7 +528,7 @@ function init() {
             BB.showMessage("BATTLE BIKE  [+]  Touch to START", "#ffffff");
 
             createjs.Ticker.addEventListener("tick", BB.frame2update);
-            //createjs.Ticker.addEventListener("tick", stage);
+            createjs.Ticker.addEventListener("tick", stage);
         }
 
   
