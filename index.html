@@ -66,10 +66,11 @@ BB.button=new Array();
 BB.init2button=function(x, y, cf) {
    //Create a Shape DisplayObject.
    var circle = new createjs.Shape();
-   circle.graphics.beginStroke("#eeeeee").beginFill("#cccccc").drawCircle(0, 0, 40).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
+   circle.graphics.beginStroke("#555555").beginFill("#222222").drawCircle(0, 0, 40).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
    //Set position of Shape instance.
    circle.x = x;
    circle.y = y;
+   circle.alpha = .5;
 
    //Add Shape instance to stage display list.
    stage.addChild(circle);
@@ -83,7 +84,11 @@ BB.init2button=function(x, y, cf) {
 BB.init2player=function(x, y, cf, cs) {
    //Create a Shape DisplayObject.
    var s = new createjs.Shape();
-   s.graphics.beginStroke(cs).beginFill(cf).drawCircle(0, 0, 10).beginFill(cs).drawRoundRect(-5, -2, 16, 4, 2);
+   s.graphics.beginStroke(cs).beginFill(cf).drawCircle(0, 0, 10)
+      .beginFill(cs).drawRoundRect(-8, -2, 19, 4, 2)
+      .beginFill(cf).drawRoundRect(-7, -3, 7, 6, 4)
+      .beginFill(cf).drawRoundRect(2, -3, 8, 6, 4)
+      ;
    //Set position of Shape instance.
    s.x = x;
    s.y = y;
@@ -97,13 +102,14 @@ BB.init2player=function(x, y, cf, cs) {
    return s;
 }
 
-BB.init2npc=function(x, y, cf) {
+BB.init2npc=function(x, y, cf, alpha, radius) {
    //Create a Shape DisplayObject.
    var s = new createjs.Shape();
-   s.graphics.beginStroke("#ff0000").beginFill(cf).drawCircle(0, 0, 10);
+   s.graphics.beginStroke("#ff0000").beginFill(cf).drawCircle(0, 0, radius);
    //Set position of Shape instance.
    s.x = x;
    s.y = y;
+   s.alpha = alpha;
 
     //Add Shape instance to stage display list.
    stage.addChild(s);
@@ -134,17 +140,17 @@ BB.npdx=new Array();
 BB.npdy=new Array();
 
 BB.init2npcs=function() {
-    BB.init2npc(BB.w3, BB.h3, "#ff5500");
-    BB.init2npc(2*BB.w3, BB.h3, "#ff5500");
-    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500");
-    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500");
-    BB.init2npc(BB.w2, BB.h2, "#ff5500");
+    BB.init2npc(BB.w3, BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(2*BB.w3, BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(BB.w2, BB.h2, "#ff5500", 1, 10);
 
-    BB.init2npc(BB.w3, BB.h3, "#ff5500");
-    BB.init2npc(2*BB.w3, BB.h3, "#ff5500");
-    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500");
-    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500");
-    BB.init2npc(BB.w2, BB.h2, "#ff5500");
+    BB.init2npc(BB.w3, BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(2*BB.w3, BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500", 1, 10);
+    BB.init2npc(BB.w2, BB.h2, "#ff5500", 1, 10);
 }
 
 BB.npc2update=function(pid) {
@@ -170,7 +176,7 @@ BB.player4=null;
 
 BB.init2players=function() {
     BB.player1=BB.init2player(BB.w2, BB.h4, "#ffaaaa", "#ff5555");
-    BB.player2=BB.init2player(BB.w4, BB.h2, "#aaffaa", "#55ff55");
+    BB.player2=BB.init2player(BB.w4, BB.h2, "#aaffaa", "#55aa55");
     BB.player3=BB.init2player(BB.w2, 3*BB.h4, "#aaaaff", "#5555ff");
     BB.player4=BB.init2player(3*BB.w4, BB.h2, "#ffffff", "#555555");
 }
@@ -233,7 +239,7 @@ BB.player2update=function(player, pid) {
 
 };
 
-BB.color=new Array("#ffaaaa", "#aaffaa", "#aaaaff", "#ffffff");
+BB.color=new Array("#ff444444", "#44ff44", "#4444ff", "#ffffff");
 
 BB.text2winner=null
 
@@ -253,7 +259,10 @@ BB.frame2update=function (event) {
    if (BB.text2info != null) BB.text2info.text=fps+"/"+BB.npc.length+"/"+Math.round(createjs.Ticker.getTime(true));
    if (BB.game2play) {
 
-      if (fps > BB.fps2min) BB.init2npc(BB.w2, BB.h2, "#ff5500");
+      if (fps > BB.fps2min) {
+         var radius=Math.round(100*Math.random());
+         BB.init2npc(BB.w2, BB.h2, "#555555", .01, radius);
+      }
       if (fps < BB.fps2min) BB.npc2remove();
 
       if (BB.text2winner != null) {
@@ -273,7 +282,9 @@ BB.frame2update=function (event) {
 
       var win2id=BB.winid;
       var win2name=1+BB.winid;
-      var txt="* PLAYER "+win2name+" WINS * LEVEL "+ BB.game2level + " *";
+      var txt="* PLAYER "+win2name+" WINS"
+      + "\n\n* LEVEL "+ BB.game2level 
+      + "\n\n* touch to play";
 
       BB.game2level+=10;
 
@@ -293,33 +304,30 @@ BB.showMessage=function (msg, color) {
       BB.text2winner=null;
    }
 
-   BB.text2winner = new createjs.Text(msg, "60px Arial", color);
-
-   if (msg.length < 20) {
-      BB.text2winner.x = BB.w3;
-   }
-   else {
-      BB.text2winner.x = BB.w4;
-   }
-   BB.text2winner.y = BB.h3;
-
-   if (BB.text2info != null) {
-      stage.removeChild(BB.text2info);
-      BB.text2info=null;
+   if (BB.text2winner == null) {
+      BB.text2winner = new createjs.Text(msg, "50px Verdana", color);
+      if (msg.length < 20) {
+         BB.text2winner.x = BB.w2;
+      }
+      else {
+         BB.text2winner.x = BB.w3;
+      }
+      BB.text2winner.y = BB.h3;
+      stage.addChild(BB.text2winner);
    }
 
-   var fps=Math.round(createjs.Ticker.getMeasuredFPS());
-   var info="fps:"+fps;
-   if (fps > 0) {
-      info="fps:"+fps;
-   }
+   //if (BB.text2info != null) {
+   //   stage.removeChild(BB.text2info);
+   //   BB.text2info=null;
+   //}
 
-   BB.text2info = new createjs.Text(info, "10px Monospace", color);
-   BB.text2info.x = 5;
-   BB.text2info.y = 5;
+   if (BB.text2info == null) {
+      BB.text2info = new createjs.Text("", "10px Monospace", color);
+      BB.text2info.x = 5;
+      BB.text2info.y = BB.height-15;
+      stage.addChild(BB.text2info);
+    }
 
-   stage.addChild(BB.text2info);
-   stage.addChild(BB.text2winner);
 
 };
 
@@ -336,8 +344,8 @@ BB.frame2players=function () {
       if (da*da < 60) da=0; // reduce brownian noise
       BB.ma[p]= (BB.ma[p]+Math.round(da)) % 360;
       
-      var dx=BB.mr[p] * Math.cos(BB.ma[p]*Math.PI/180);
-      var dy=BB.mr[p] * Math.sin(BB.ma[p]*Math.PI/180);
+      var dx=.2 * BB.mr[p] * Math.cos(BB.ma[p]*Math.PI/180);
+      var dy=.2 * BB.mr[p] * Math.sin(BB.ma[p]*Math.PI/180);
 
       BB.mx[p]=Math.round(dx);
       BB.my[p]=Math.round(dy);
@@ -380,6 +388,9 @@ BB.game2players=function () {
 BB.game2npcs=function () {
    for (var p1=0; p1<BB.npc.length; p1++) {
       var player1=BB.npc[p1];
+
+      if (player1.alpha < 0.5) return;
+
       for (var p2=0; p2<BB.player.length; p2++) {
          var player2=BB.player[p2];
          var d2=(player1.x-player2.x)*(player1.x-player2.x) + (player1.y-player2.y)*(player1.y-player2.y);
@@ -447,8 +458,8 @@ BB.frame2npcs=function (event) {
       var da=16*Math.random()-8;
       BB.npa[p]= (BB.npa[p]+Math.round(da)) % 360;
       
-      var dx=BB.npr[p] * Math.cos(BB.npa[p]*Math.PI/180);
-      var dy=BB.npr[p] * Math.sin(BB.npa[p]*Math.PI/180);
+      var dx=.2*BB.npr[p] * Math.cos(BB.npa[p]*Math.PI/180);
+      var dy=.2*BB.npr[p] * Math.sin(BB.npa[p]*Math.PI/180);
 
       BB.npdx[p]=Math.round(dx);
       BB.npdy[p]=Math.round(dy);
@@ -555,7 +566,7 @@ function init() {
             BB.init2npcs();
             BB.init2players();
 
-            BB.showMessage("BATTLE BIKE  [+]  Touch to START", "#ffffff");
+            BB.showMessage("* BATTLE BIKE\n\n* Touch to START", "#ffffff");
 
             createjs.Ticker.addEventListener("tick", BB.frame2update);
             createjs.Ticker.addEventListener("tick", stage);
