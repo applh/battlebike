@@ -21,19 +21,28 @@ body {
 
     <script src="cordova.js"></script>
 
+   <script type="text/javascript" src="assets/soundjs-0.4.0.min.js"></script>
+
     <script type="text/javascript" src="src/easeljs/utils/UID.js"></script>
-    <script type="text/javascript" src="src/easeljs/geom/Matrix2D.js"></script>
     <script type="text/javascript" src="src/easeljs/events/EventDispatcher.js"></script>
+    <script type="text/javascript" src="src/easeljs/utils/Ticker.js"></script>
     <script type="text/javascript" src="src/easeljs/display/DisplayObject.js"></script>
+
+    <script type="text/javascript" src="src/easeljs/geom/Point.js"></script>
+    <script type="text/javascript" src="src/easeljs/geom/Matrix2D.js"></script>
+
+    <script type="text/javascript" src="src/easeljs/events/MouseEvent.js"></script>
+
     <script type="text/javascript" src="src/easeljs/display/Container.js"></script>
     <script type="text/javascript" src="src/easeljs/display/Stage.js"></script>
-    <script type="text/javascript" src="src/easeljs/events/MouseEvent.js"></script>
     <script type="text/javascript" src="src/easeljs/display/Shape.js"></script>
     <script type="text/javascript" src="src/easeljs/display/Graphics.js"></script>
-    <script type="text/javascript" src="src/easeljs/utils/Ticker.js"></script>
     <script type="text/javascript" src="src/easeljs/display/Text.js"></script>
+    <script type="text/javascript" src="src/easeljs/display/Bitmap.js"></script>
+
     <script type="text/javascript" src="src/easeljs/ui/Touch.js"></script>
-    <script type="text/javascript" src="src/easeljs/geom/Point.js"></script>
+
+
 
     <!-- We also provide hosted minified versions of all CreateJS libraries.
        http://code.createjs.com -->
@@ -67,7 +76,7 @@ BB.button=new Array();
 BB.init2button=function(x, y, cf) {
    //Create a Shape DisplayObject.
    var circle = new createjs.Shape();
-   circle.graphics.beginStroke("#555555").beginFill("#222222").drawCircle(0, 0, 40).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
+   circle.graphics.beginStroke("#555555").beginFill("#222222").drawCircle(0, 0, 15).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
    //Set position of Shape instance.
    circle.x = x;
    circle.y = y;
@@ -103,10 +112,10 @@ BB.init2player=function(x, y, cf, cs) {
    return s;
 }
 
-BB.init2npc=function(x, y, cf, alpha, radius) {
+BB.init2npc=function(x, y, cf, cs, alpha, radius) {
    //Create a Shape DisplayObject.
    var s = new createjs.Shape();
-   s.graphics.beginStroke("#ff0000").beginFill(cf).drawCircle(0, 0, radius);
+   s.graphics.beginStroke(cs).beginFill(cf).drawCircle(0, 0, radius);
    //Set position of Shape instance.
    s.x = x;
    s.y = y;
@@ -141,17 +150,17 @@ BB.npdx=new Array();
 BB.npdy=new Array();
 
 BB.init2npcs=function() {
-    BB.init2npc(BB.w3, BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(2*BB.w3, BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(BB.w2, BB.h2, "#ff5500", 1, 10);
+    BB.init2npc(BB.w3, BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(2*BB.w3, BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(BB.w2, BB.h2, "#ff5500", "#ff0000", 1, 10);
 
-    BB.init2npc(BB.w3, BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(2*BB.w3, BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500", 1, 10);
-    BB.init2npc(BB.w2, BB.h2, "#ff5500", 1, 10);
+    BB.init2npc(BB.w3, BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(2*BB.w3, BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(BB.w3, 2*BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(2*BB.w3, 2*BB.h3, "#ff5500", "#ff0000", 1, 10);
+    BB.init2npc(BB.w2, BB.h2, "#ff5500", "#ff0000", 1, 10);
 }
 
 BB.npc2update=function(pid) {
@@ -183,17 +192,17 @@ BB.init2players=function() {
 }
 
 BB.init2hud=function() {
-    BB.init2button(BB.w3, 50, "#ffaaaa");
-    BB.init2button(2*BB.w3, 50, "#ffaaaa");
+    BB.init2button(BB.w3, 20, "#ffaaaa");
+    BB.init2button(2*BB.w3, 20, "#ffaaaa");
 
-    BB.init2button(50, 2*BB.h3, "#aaffaa");
-    BB.init2button(50, BB.h3, "#aaffaa");
+    BB.init2button(20, 2*BB.h3, "#aaffaa");
+    BB.init2button(20, BB.h3, "#aaffaa");
 
-    BB.init2button(2*BB.w3, BB.height-50, "#aaaaff");
-    BB.init2button(BB.w3, BB.height-50, "#aaaaff");
+    BB.init2button(2*BB.w3, BB.height-20, "#aaaaff");
+    BB.init2button(BB.w3, BB.height-20, "#aaaaff");
 
-    BB.init2button(BB.width-50, BB.h3, "#ffffff");
-    BB.init2button(BB.width-50, 2*BB.h3, "#ffffff");
+    BB.init2button(BB.width-20, BB.h3, "#ffffff");
+    BB.init2button(BB.width-20, 2*BB.h3, "#ffffff");
 }
 
 
@@ -212,7 +221,7 @@ BB.mr=new Array(16,16,16,16); // radius
 BB.ma=new Array(0,180,270,90); // angle
 BB.power=new Array(10,10,10,10); // angle
 
-BB.game2level=100;
+BB.game2level=50;
 
 BB.player2update=function(player, pid) {
 
@@ -227,10 +236,10 @@ BB.player2update=function(player, pid) {
    var power=BB.power[pid];
    player.scaleX = player.scaleY = power/10;
    player.rotation = BB.ma[pid];
-   player.alpha = .8;
+   player.alpha = .9;
 
    if (power < BB.game2level) { 
-      BB.power[pid]=power+.5;
+      BB.power[pid]=power+.1;
    }
    else {
       BB.game2play=false;
@@ -240,11 +249,12 @@ BB.player2update=function(player, pid) {
 
 };
 
-BB.color=new Array("#ff4400", "#44ff44", "#00aaff", "#ffffff");
+BB.color=new Array("#ff8844", "#44ff44", "#00aaff", "#ffffff");
 
 BB.text2winner=null
 
 BB.game2finish=false;
+
 BB.frame2update=function (event) {
    stage.clear();
 
@@ -264,7 +274,12 @@ BB.frame2update=function (event) {
       if (fps > BB.fps2min) {
          var radius=Math.round(100*Math.random());
          var alpha=0.002*Math.round(1000/BB.npc.length);
-         BB.init2npc(BB.w2, BB.h2, "#666666", alpha, radius);
+         var cr=Math.round(10+200*Math.random());
+         var cg=Math.round(10+200*Math.random());
+         var cb=Math.round(10+200*Math.random());
+         var cf="rgb("+cr+","+cg+","+cb+")";
+         var cs="rgb("+cg+","+cb+","+cr+")";
+         BB.init2npc(BB.w2, BB.h2, cf, cs, alpha, radius);
       }
       if (fps < BB.fps2min) BB.npc2remove();
 
@@ -314,7 +329,7 @@ BB.showMessage=function (msg, color) {
    }
 
    if (BB.text2winner == null) {
-      BB.text2winner = new createjs.Text(msg, "50px Verdana", color);
+      BB.text2winner = new createjs.Text(msg, "50px Monospace", color);
       if (msg.length < 20) {
          BB.text2winner.x = BB.w2;
       }
@@ -347,7 +362,7 @@ BB.frame2players=function () {
       BB.mr[p]+=Math.round(dr);
 
       if (BB.mr[p] <0) BB.mr[p]=0;
-      if (BB.mr[p] >30) BB.mr[p]=30;
+      if (BB.mr[p] >40) BB.mr[p]=40;
 
       var da=20*Math.random()-10;
       if (da*da < 60) da=0; // reduce brownian noise
@@ -362,6 +377,7 @@ BB.frame2players=function () {
 
    BB.game2players();
    BB.game2npcs();
+   BB.game2collision();
 
    // Actions carried out each frame
    BB.player2update(BB.player1, 0);
@@ -388,6 +404,10 @@ BB.game2players=function () {
             BB.my[p2]=-BB.my[p2];
             BB.ma[p2]= (BB.ma[p2]+180) % 360;
             BB.power[p2]=Math.round(BB.power[p2]*.8);
+
+            var ex=Math.round(.5*(player1.x + player2.x));
+            var ey=Math.round(.5*(player1.y + player2.y));
+            BB.player2collision(ex, ey);
          }
       }
    }
@@ -407,6 +427,10 @@ BB.game2npcs=function () {
          var level=(10+BB.power[p2])*(10+BB.power[p2]);
          if (d2 < level) {
             BB.power[p2]=10;
+
+            var ex=Math.round(.5*(player1.x + player2.x));
+            var ey=Math.round(.5*(player1.y + player2.y));
+            BB.player2collision(ex, ey);
          }
       }
    }
@@ -415,11 +439,12 @@ BB.game2npcs=function () {
 
 BB.game2press=function (smx, smy) {
    var found=false;
+   var level2=600;
+   var level2c=0.25*BB.w3*BB.h3;
    for (var p1=0; p1<BB.button.length; p1++) {
       var player1=BB.button[p1];
       var d2=(player1.x-smx)*(player1.x-smx) + (player1.y-smy)*(player1.y-smy);
-      var level=10000;
-      if (d2 < level) {
+      if (d2 < level2) {
          found=true;
          player1.rotation=(player1.rotation+90)%360;
          if (p1 == 0) {
@@ -450,10 +475,14 @@ BB.game2press=function (smx, smy) {
    }
       
    if (!found) {
-      BB.game2play=!BB.game2play;
-      BB.game2pause=!BB.game2pause;
 
-      if (BB.game2finish) BB.game2finish=false;
+      var c2=(BB.w2-smx)*(BB.w2-smx) + (BB.h2-smy)*(BB.h2-smy);
+      if (c2 < level2c) {
+         BB.game2play=!BB.game2play;
+         BB.game2pause=!BB.game2pause;
+
+         if (BB.game2finish) BB.game2finish=false;
+      }
    }
 };
 
@@ -481,6 +510,48 @@ BB.frame2npcs=function (event) {
 
 };
 
+
+
+BB.set2collision=new Array();
+BB.bitmap2collision=null;
+
+BB.player2collision=function (x, y) {
+   var next=BB.set2collision.length;
+   //var bitmap = new createjs.Bitmap("assets/daisy.png");
+   var bitmap = new createjs.Bitmap("assets/pow.png");
+   bitmap.x=x;
+   bitmap.y=y;
+
+   stage.addChild(bitmap);
+   //bitmap.cache(0, 0, 64, 64);
+   BB.set2collision[next]=bitmap;
+
+   createjs.Sound.play("collision", createjs.Sound.INTERRUPT_ANY);
+};
+
+BB.game2collision=function () {
+   for (var p=0; p < BB.set2collision.length; p++) {
+      var curp=BB.set2collision[p];
+      if (curp != null) {
+         curp.alpha-=.05;
+         if (curp.alpha <0.1) {
+            stage.removeChild(curp);
+            BB.set2collision[p]=null;
+         }
+      }
+   }
+
+   if (BB.set2collision.length > 100) {
+      var clean=new Array();
+      for (var p=0; p < BB.set2collision.length; p++) {
+         var src=BB.set2collision[p];
+         if (src != null) {
+            clean[clean.length]=src;
+         }
+      }
+      BB.set2collision=clean;
+   }
+};
 
 /*
     BB.player1=BB.init2player(BB.w2, BB.h4, "#ffaaaa", "#ff5555");
@@ -514,6 +585,7 @@ BB.game2reset=function () {
    BB.mr=new Array(16,16,16,16); // radius
    BB.ma=new Array(270,0,90,180); // angle
    BB.power=new Array(10,10,10,10); // angle
+
 };
 
 BB.now=new Date();
@@ -580,13 +652,31 @@ function init() {
             BB.init2npcs();
             BB.init2players();
 
+
             BB.showMessage("* BATTLE BIKE\n\n* Touch to START", "#ffffff");
 
             createjs.Ticker.addEventListener("tick", BB.frame2update);
             createjs.Ticker.addEventListener("tick", stage);
+
+            createjs.Sound.addEventListener("loadComplete", createjs.proxy(BB.sound2load, this));
+            createjs.Sound.registerSound("assets/bb-bg.mp3|assets/bb-bg.ogg", "sound");
+            createjs.Sound.registerSound("assets/bb-collision.mp3|assets/bb-collision.ogg", "collision");
         }
 
-  
+BB.sound2press=false;
+
+BB.sound2load=function(event) {
+     // This is fired for each sound that is registered.
+            var instance = createjs.Sound.play("sound");  // play using id.  Could also use source.
+            instance.setVolume(0.2);
+            instance.addEventListener("complete", createjs.proxy(BB.sound2complete, this));
+ } 
+BB.sound2complete=function(event) {
+     var instance = createjs.Sound.play("sound");  // play using id.  Could also use source.
+     instance.setVolume(0.2);
+     instance.addEventListener("complete", createjs.proxy(BB.sound2complete, this));
+};
+
         function stop() {
             //createjs.Ticker.removeEventListener("tick", tick);
         }
@@ -639,7 +729,12 @@ function init() {
         }
 
         function handleMouseUp(event) {
-            //stage.removeEventListener("stagemousemove" , handleMouseMove);
+           if (!BB.sound2press) {
+            var instance = createjs.Sound.play("sound");  // play using id.  Could also use source.
+            instance.setVolume(0.2);
+            instance.addEventListener("complete", createjs.proxy(BB.sound2complete, this));
+            BB.sound2press=true;
+           }
         }
 
     </script>
