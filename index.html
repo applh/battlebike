@@ -53,6 +53,7 @@ body {
 
 
 BB.game2play=false;
+BB.game2pause=true;
 BB.game2winner=false;
 BB.game2winid=-1;
 
@@ -239,10 +240,11 @@ BB.player2update=function(player, pid) {
 
 };
 
-BB.color=new Array("#ff444444", "#44ff44", "#4444ff", "#ffffff");
+BB.color=new Array("#ff4400", "#44ff44", "#00aaff", "#ffffff");
 
 BB.text2winner=null
 
+BB.game2finish=false;
 BB.frame2update=function (event) {
    stage.clear();
 
@@ -261,7 +263,8 @@ BB.frame2update=function (event) {
 
       if (fps > BB.fps2min) {
          var radius=Math.round(100*Math.random());
-         BB.init2npc(BB.w2, BB.h2, "#555555", .01, radius);
+         var alpha=0.002*Math.round(1000/BB.npc.length);
+         BB.init2npc(BB.w2, BB.h2, "#666666", alpha, radius);
       }
       if (fps < BB.fps2min) BB.npc2remove();
 
@@ -290,7 +293,13 @@ BB.frame2update=function (event) {
 
       BB.game2reset();
 
+      BB.game2finish=true;
       BB.showMessage(txt, BB.color[win2id]);
+   }
+   else if (BB.game2pause){
+      if (!BB.game2finish) {
+         BB.showMessage("* BATTLE BIKE\n\n* Touch to START", "#ffffff");
+      }
    }
 
    stage.update();
@@ -322,7 +331,7 @@ BB.showMessage=function (msg, color) {
    //}
 
    if (BB.text2info == null) {
-      BB.text2info = new createjs.Text("", "10px Monospace", color);
+      BB.text2info = new createjs.Text("", "8px Monospace", color);
       BB.text2info.x = 5;
       BB.text2info.y = BB.height-15;
       stage.addChild(BB.text2info);
@@ -442,6 +451,9 @@ BB.game2press=function (smx, smy) {
       
    if (!found) {
       BB.game2play=!BB.game2play;
+      BB.game2pause=!BB.game2pause;
+
+      if (BB.game2finish) BB.game2finish=false;
    }
 };
 
@@ -477,6 +489,8 @@ BB.frame2npcs=function (event) {
     BB.player4=BB.init2player(3*BB.w4, BB.h2, "#ffffff", "#555555");
 */
 BB.game2reset=function () {
+
+   BB.game2pause=true;
 
    BB.winner=false;
    BB.winid=-1;
