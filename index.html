@@ -218,8 +218,15 @@ BB.player2update=function(player, pid) {
 BB.color=new Array("#ffaaaa", "#aaffaa", "#aaaaff", "#ffffff");
 
 BB.text2winner=null
+
 BB.frame2update=function (event) {
-   stage.clear();
+   //stage.clear();
+
+   BB.frame2total++;
+   BB.time2delta();
+
+   var fps=Math.round(createjs.Ticker.getMeasuredFPS());
+   if (fps > 25) createjs.Ticker.setFPS(25);
 
    if (BB.game2play) {
 
@@ -240,28 +247,28 @@ BB.frame2update=function (event) {
 
       var win2id=BB.winid;
       var win2name=1+BB.winid;
-      var txt="PLAYER "+win2name+" WINS LEVEL "+ BB.game2level;
+      var txt="* PLAYER "+win2name+" WINS * LEVEL "+ BB.game2level + " *";
 
       BB.game2level+=10;
 
       BB.game2reset();
 
-      BB.text2winner = new createjs.Text(txt, "60px Arial", BB.color[win2id]);
-      BB.text2winner.x = BB.w3;
-      BB.text2winner.y = BB.h3;
-      stage.addChild(BB.text2winner);
+      BB.showMessage(txt, BB.color[win2id]);
 
    }
 
    stage.update();
 };
 
+BB.text2info=null;
 BB.showMessage=function (msg, color) {
    if (BB.text2winner != null) {
       stage.removeChild(BB.text2winner);
       BB.text2winner=null;
    }
+
    BB.text2winner = new createjs.Text(msg, "60px Arial", color);
+
    if (msg.length < 20) {
       BB.text2winner.x = BB.w3;
    }
@@ -269,6 +276,20 @@ BB.showMessage=function (msg, color) {
       BB.text2winner.x = BB.w4;
    }
    BB.text2winner.y = BB.h3;
+
+   if (BB.text2info != null) {
+      stage.removeChild(BB.text2info);
+      BB.text2info=null;
+   }
+   var fps=Math.round(createjs.Ticker.getMeasuredFPS());
+   if (fps > 0) {
+      var info="fps:"+fps;
+      BB.text2info = new createjs.Text(info, "10px Monospace", color);
+      BB.text2info.x = 5;
+      BB.text2info.y = 5;
+      stage.addChild(BB.text2info);
+   }
+
    stage.addChild(BB.text2winner);
 
 };
@@ -409,8 +430,13 @@ BB.frame2npcs=function (event) {
 };
 
 
+/*
+    BB.player1=BB.init2player(BB.w2, BB.h4, "#ffaaaa", "#ff5555");
+    BB.player2=BB.init2player(BB.w4, BB.h2, "#aaffaa", "#55ff55");
+    BB.player3=BB.init2player(BB.w2, 3*BB.h4, "#aaaaff", "#5555ff");
+    BB.player4=BB.init2player(3*BB.w4, BB.h2, "#ffffff", "#555555");
+*/
 BB.game2reset=function () {
-   BB.power=new Array(10,10,10,10); // angle
 
    BB.winner=false;
    BB.winid=-1;
@@ -419,8 +445,41 @@ BB.game2reset=function () {
       stage.removeChild(BB.text2winner);
       BB.text2winner=null;
    }
+
+   BB.player1.x=BB.w2;
+   BB.player1.y=BB.h4;
+   BB.player2.x=BB.w4;
+   BB.player2.y=BB.h2;
+   BB.player3.x=BB.w2;
+   BB.player3.y=3*BB.h4;
+   BB.player4.x=3*BB.w4;
+   BB.player4.y=BB.h2;
+
+   BB.mx=new Array(1,-1,0,0);
+   BB.my=new Array(0,0,1,-1);
+   BB.mr=new Array(16,16,16,16); // radius
+   BB.ma=new Array(270,0,90,180); // angle
+   BB.power=new Array(10,10,10,10); // angle
 };
 
+BB.now=new Date();
+BB.time0=BB.now.getTime();
+BB.time1=BB.time0;
+BB.time00=BB.time0;
+BB.delta00=BB.time1-BB.time0;
+BB.delta=BB.time1-BB.time0;
+BB.frame2total=0;
+
+BB.time2delta=function () {
+   BB.now=new Date();
+   BB.time0=BB.time1;
+   BB.time1=BB.now.getTime();
+   BB.delta=BB.time1-BB.time0;
+
+   BB.delta00=BB.time1-BB.time00;
+
+   return BB.delta;
+};
 
 function init() {
             if (window.top != window) {
@@ -436,12 +495,12 @@ function init() {
 
             //check to see if we are running in a browser with touch support
             stage = new createjs.Stage(canvas);
-            stage.autoClear = false;
-            //stage.autoClear = true;
+            //stage.autoClear = false;
+            stage.autoClear = true;
             stage.enableDOMEvents(true);
 
             createjs.Touch.enable(stage);
-            createjs.Ticker.setFPS(50);
+            createjs.Ticker.setFPS(40);
 
             BB.width=stage.canvas.width; // canvas size
             BB.height=stage.canvas.height;
@@ -453,15 +512,15 @@ function init() {
             BB.w4=Math.round(BB.width/4);
             BB.h4=Math.round(BB.height/4);
 
-            drawingCanvas = new createjs.Shape();
+            //drawingCanvas = new createjs.Shape();
 
             stage.addEventListener("stagemousedown", handleMouseDown);
             stage.addEventListener("stagemouseup", handleMouseUp);
-            stage.addEventListener("stagemousemove" , handleMouseMove);
+            //stage.addEventListener("stagemousemove" , handleMouseMove);
 
-            stage.addChild(drawingCanvas);
+            //stage.addChild(drawingCanvas);
             //Update stage will render next frame
-            stage.update();
+            //stage.update();
 
             BB.init2hud();
             BB.init2npcs();
@@ -514,7 +573,7 @@ function init() {
                //var midPt = new createjs.Point(oldPt.x + stage.mouseX>>1, oldPt.y+stage.mouseY>>1);
                var midPt = new createjs.Point(oldPt.x + smx>>1, oldPt.y+smy>>1);
 
-               drawingCanvas.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
+               //drawingCanvas.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
 
                oldPt.x = stage.mouseX;
                oldPt.y = stage.mouseY;
