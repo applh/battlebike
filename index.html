@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Battle Bike</title>
+    <title>Bubble Bike</title>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="format-detection" content="telephone=no" />
@@ -73,10 +73,36 @@ BB.game2winid=-1;
 
 BB.button=new Array();
 
+BB.init2scene=function() {
+   //Create a Shape DisplayObject.
+   var circle = new createjs.Shape();
+   circle.graphics.beginStroke("#555555").drawCircle(0, 0, 100);
+   //Set position of Shape instance.
+   circle.x = BB.w2;
+   circle.y = BB.h2;
+   circle.alpha = .2;
+
+   //Add Shape instance to stage display list.
+   stage.addChild(circle);
+};
+
+BB.init2target=function(radius, cs) {
+   //Create a Shape DisplayObject.
+   var circle = new createjs.Shape();
+   circle.graphics.beginStroke(cs).drawCircle(0, 0, radius);
+   //Set position of Shape instance.
+   circle.x = BB.w2;
+   circle.y = BB.h2;
+   circle.alpha = .2;
+
+   //Add Shape instance to stage display list.
+   stage.addChild(circle);
+};
+
 BB.init2button=function(x, y, cf) {
    //Create a Shape DisplayObject.
    var circle = new createjs.Shape();
-   circle.graphics.beginStroke("#555555").beginFill("#222222").drawCircle(0, 0, 15).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
+   circle.graphics.beginStroke("#555555").drawCircle(0, 0, 50).beginFill("#222222").drawCircle(0, 0, 15).beginFill(cf).drawRoundRect(-5, -20, 10, 40, 2);
    //Set position of Shape instance.
    circle.x = x;
    circle.y = y;
@@ -148,6 +174,7 @@ BB.npa=new Array();
 BB.npr=new Array();
 BB.npdx=new Array();
 BB.npdy=new Array();
+
 
 BB.init2npcs=function() {
     BB.init2npc(BB.w3, BB.h3, "#ff5500", "#ff0000", 1, 10);
@@ -245,6 +272,8 @@ BB.player2update=function(player, pid) {
       BB.game2play=false;
       BB.winner=true;
       BB.winid=pid;
+
+      BB.target2color=BB.color[pid];
    }
 
 };
@@ -268,7 +297,12 @@ BB.frame2update=function (event) {
       if (fps < BB.fps2target) createjs.Ticker.setFPS(Math.round(.5*(BB.fps2target+fps)));
    }
 
-   if (BB.text2info != null) BB.text2info.text=fps+"/"+BB.npc.length+"/"+Math.round(createjs.Ticker.getTime(true));
+   if (BB.text2info != null) {
+      BB.text2info.text=fps+"/"+BB.npc.length
+         +"/"+Math.round(createjs.Ticker.getTime(true))
+         +"/ BY APPLH.COM";
+   }
+
    if (BB.game2play) {
 
       if (fps > BB.fps2min) {
@@ -313,7 +347,7 @@ BB.frame2update=function (event) {
    }
    else if (BB.game2pause){
       if (!BB.game2finish) {
-         BB.showMessage("* BATTLE BIKE\n\n* Touch to START", "#ffffff");
+         BB.showMessage("* BUBBLE BIKE\n\n* touch to start", "#ffffff");
       }
    }
 
@@ -439,7 +473,7 @@ BB.game2npcs=function () {
 
 BB.game2press=function (smx, smy) {
    var found=false;
-   var level2=600;
+   var level2=1600;
    var level2c=0.25*BB.w3*BB.h3;
    for (var p1=0; p1<BB.button.length; p1++) {
       var player1=BB.button[p1];
@@ -519,11 +553,10 @@ BB.player2collision=function (x, y) {
    var next=BB.set2collision.length;
    //var bitmap = new createjs.Bitmap("assets/daisy.png");
    var bitmap = new createjs.Bitmap("assets/pow.png");
-   bitmap.x=x;
-   bitmap.y=y;
+   bitmap.x=x-32; // recenter the bitmap
+   bitmap.y=y-32;
 
    stage.addChild(bitmap);
-   //bitmap.cache(0, 0, 64, 64);
    BB.set2collision[next]=bitmap;
 
    createjs.Sound.play("collision", createjs.Sound.INTERRUPT_ANY);
@@ -559,6 +592,8 @@ BB.game2collision=function () {
     BB.player3=BB.init2player(BB.w2, 3*BB.h4, "#aaaaff", "#5555ff");
     BB.player4=BB.init2player(3*BB.w4, BB.h2, "#ffffff", "#555555");
 */
+BB.target2color="#eeeeee";
+
 BB.game2reset=function () {
 
    BB.game2pause=true;
@@ -585,6 +620,8 @@ BB.game2reset=function () {
    BB.mr=new Array(16,16,16,16); // radius
    BB.ma=new Array(270,0,90,180); // angle
    BB.power=new Array(10,10,10,10); // angle
+
+   BB.init2target(BB.game2level, BB.target2color);
 
 };
 
@@ -648,12 +685,14 @@ function init() {
             //Update stage will render next frame
             //stage.update();
 
+            BB.init2scene();
             BB.init2hud();
             BB.init2npcs();
             BB.init2players();
 
+            BB.game2reset();
 
-            BB.showMessage("* BATTLE BIKE\n\n* Touch to START", "#ffffff");
+            BB.showMessage("* BUBBLE BIKE\n\n* touch to start", "#ffffff");
 
             createjs.Ticker.addEventListener("tick", BB.frame2update);
             createjs.Ticker.addEventListener("tick", stage);
